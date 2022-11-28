@@ -42,7 +42,7 @@
 
 	#define 	MY_DEBUG
 	#define 	UART_DEBUG 			&huart1
-	#define 	SOFT_VERSION 		801
+	#define 	SOFT_VERSION 		100
 
 /* USER CODE END PD */
 
@@ -56,10 +56,9 @@
 /* USER CODE BEGIN PV */
 
 	char 		DataChar[0xFF]		= { 0 } ;
-	uint8_t 	display_update_tim	= 0 ;
+	//uint8_t 	display_update_tim	= 0 ;
 	uint8_t 	display_update_ext	= 0 ;
 	uint32_t	tacho_value_u32		= 0 ;
-	uint32_t	counter				= 0 ;
 
 /* USER CODE END PV */
 
@@ -132,19 +131,12 @@ int main(void)
   while (1)
   {
 	  if (display_update_ext == 1) {
-		  uint32_t tacho_res_u32 = (60*1000*1000)/(2*tacho_value_u32) ;
-		  sprintf(DataChar," value = %lu\r\n", tacho_res_u32); UartDebug(DataChar) ;
-		  tm1637_Display_Decimal( &htm1637, tacho_res_u32, no_double_dot);
-		  HAL_Delay(500);
+		  //uint32_t tacho_res_u32 = (5*60*1000*1000)/(2*tacho_tpm_u32) ;
+		  sprintf(DataChar," value = %lu\r\n", tacho_value_u32); UartDebug(DataChar) ;
+		  tm1637_Display_Decimal( &htm1637, tacho_value_u32, no_double_dot);
+		  HAL_Delay(200);
 		  display_update_ext = 0;
 	  }
-	  if (display_update_tim == 1) {
-		  tm1637_Display_Decimal( &htm1637, counter++, no_double_dot);
-		  sprintf(DataChar,"%lu ", counter); UartDebug(DataChar) ;
-		  HAL_Delay(200);
-		  display_update_tim = 0;
-	  }
-
 
     /* USER CODE END WHILE */
 
@@ -222,21 +214,23 @@ void PrintSoftVersion(uint32_t _soft_version_u32) {
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if ( GPIO_Pin == BUTTON_Pin ) {
-		if ( HAL_GPIO_ReadPin(BUTTON_GPIO_Port, BUTTON_Pin) == GPIO_PIN_RESET) {
-			HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-			tacho_value_u32 = TIM3->CNT;
+		uint32_t tim3_current_u32 = TIM3->CNT ;
+		if ( tim3_current_u32 > 100 ) {
+			if ( tim3_current_u32 < 3000 ) {
+				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+				tacho_value_u32 = tim3_current_u32 ;
+				display_update_ext = 1 ;
+			}
 			TIM3->CNT = 0 ;
-			display_update_ext = 1 ;
 		}
 	}
-
 } //**************************************************************************
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	if ( htim == &htim3 ) {
-		tacho_value_u32 = 65535;
-		display_update_tim = 1 ;
-	}
+//	if ( htim == &htim3 ) {
+//		tacho_value_u32 = 65535;
+//		display_update_tim = 1 ;
+//	}
 } //**************************************************************************
 
 /* USER CODE END 4 */
