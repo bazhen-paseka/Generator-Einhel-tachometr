@@ -62,6 +62,10 @@ void Error_Handler(void);
 #define TACHO_Pin GPIO_PIN_15
 #define TACHO_GPIO_Port GPIOC
 #define TACHO_EXTI_IRQn EXTI15_10_IRQn
+#define TM1637_CLK_Pin GPIO_PIN_8
+#define TM1637_CLK_GPIO_Port GPIOB
+#define TM1637_DIO_Pin GPIO_PIN_9
+#define TM1637_DIO_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

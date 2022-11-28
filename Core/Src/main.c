@@ -28,6 +28,7 @@
 	#include <stdio.h>
 	#include <string.h>
 	#include <stdlib.h>
+	#include "tm1637_sm.h"
 
 /* USER CODE END Includes */
 
@@ -105,7 +106,16 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   sprintf(DataChar,"\r\n\r\n\tGenerator Einhel 800/1 Tachometr"); UartDebug(DataChar) ;
-  	PrintSoftVersion(SOFT_VERSION);
+  PrintSoftVersion(SOFT_VERSION);
+
+  tm1637_struct htm1637;
+  htm1637.clk_port = TM1637_CLK_GPIO_Port;
+  htm1637.clk_pin  = TM1637_CLK_Pin;
+  htm1637.dio_port = TM1637_DIO_GPIO_Port;
+  htm1637.dio_pin  = TM1637_DIO_Pin;
+  tm1637_Init( &htm1637 );
+  tm1637_Set_Brightness( &htm1637, bright_full);
+  tm1637_Display_Decimal( &htm1637, 1234, no_double_dot);
 
   /* USER CODE END 2 */
 
