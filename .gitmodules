@@ -1,0 +1,3 @@
+[submodule "Drivers/tm1637_sm"]
+	path = Drivers/tm1637_sm
+	url = git@github.com:bazhen-paseka/tm1637_sm.git
