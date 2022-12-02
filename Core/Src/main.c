@@ -108,7 +108,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  sprintf(DataChar,"\r\n\r\n\tGenerator Einhel 800/1 Tachometr"); UartDebug(DataChar) ;
+  sprintf(DataChar,"\r\n\r\n\tTachometr for generator Einhel 800/1"); UartDebug(DataChar) ;
   PrintSoftVersion(SOFT_VERSION);
 
   tm1637_struct htm1637;
@@ -130,13 +130,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (display_update_ext == 1) {
-		  //uint32_t tacho_res_u32 = (5*60*1000*1000)/(2*tacho_tpm_u32) ;
-		  sprintf(DataChar," value = %lu\r\n", tacho_value_u32); UartDebug(DataChar) ;
-		  tm1637_Display_Decimal( &htm1637, tacho_value_u32, no_double_dot);
-		  HAL_Delay(200);
-		  display_update_ext = 0;
-	  }
+	if (display_update_ext == 1) {
+		if ( tacho_value_u32 < 3500 ) {
+			tacho_value_u32 = (60 * 1000 * 100)/tacho_value_u32 ;
+			tm1637_Display_Decimal( &htm1637, tacho_value_u32, no_double_dot);
+			//sprintf(DataChar," value = %lu\r\n", tacho_value_u32); UartDebug(DataChar) ;
+			HAL_Delay(200);
+		}
+		display_update_ext = 0;
+	}
 
     /* USER CODE END WHILE */
 
@@ -215,23 +217,21 @@ void PrintSoftVersion(uint32_t _soft_version_u32) {
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if ( GPIO_Pin == BUTTON_Pin ) {
 		uint32_t tim3_current_u32 = TIM3->CNT ;
-		if ( tim3_current_u32 > 100 ) {
-			if ( tim3_current_u32 < 3000 ) {
-				HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-				tacho_value_u32 = tim3_current_u32 ;
-				display_update_ext = 1 ;
-			}
+		if ( tim3_current_u32 > 400 ) {
 			TIM3->CNT = 0 ;
+			HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+			tacho_value_u32 = tim3_current_u32 ;
+			display_update_ext = 1 ;
 		}
 	}
 } //**************************************************************************
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 //	if ( htim == &htim3 ) {
 //		tacho_value_u32 = 65535;
 //		display_update_tim = 1 ;
 //	}
-} //**************************************************************************
+//} //**************************************************************************
 
 /* USER CODE END 4 */
 
